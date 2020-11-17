@@ -1111,7 +1111,7 @@ func (p *asyncProducer) retryMessage(msg *ProducerMessage, err error) {
 		log.Warn("err retries", zap.Any("retries", msg.retries), zap.Any("max", p.conf.Producer.Retry.Max))
 		p.returnError(msg, err)
 	} else {
-		log.Warn("retries++", zap.Any("retries", msg.retries), zap.Any("msg", msg))
+		log.Warn("retries++", zap.Any("retries", msg.retries))
 		msg.retries++
 		p.retries <- msg
 	}
