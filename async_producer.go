@@ -1072,18 +1072,19 @@ func (p *asyncProducer) shutdown() {
 func (p *asyncProducer) returnError(msg *ProducerMessage, err error) {
 	// We need to reset the producer ID epoch if we set a sequence number on it, because the broker
 	// will never see a message with this number, so we can never continue the sequence.
-	if msg.hasSequence {
-		Logger.Printf("producer/txnmanager rolling over epoch due to publish failure on %s/%d", msg.Topic, msg.Partition)
-		p.txnmgr.bumpEpoch()
-	}
-	msg.clear()
-	pErr := &ProducerError{Msg: msg, Err: err}
-	if p.conf.Producer.Return.Errors {
-		p.errors <- pErr
-	} else {
-		Logger.Println(pErr)
-	}
-	p.inFlight.Done()
+	panic(err)
+	// if msg.hasSequence {
+	// 	Logger.Printf("producer/txnmanager rolling over epoch due to publish failure on %s/%d", msg.Topic, msg.Partition)
+	// 	p.txnmgr.bumpEpoch()
+	// }
+	// msg.clear()
+	// pErr := &ProducerError{Msg: msg, Err: err}
+	// if p.conf.Producer.Return.Errors {
+	// 	p.errors <- pErr
+	// } else {
+	// 	Logger.Println(pErr)
+	// }
+	// p.inFlight.Done()
 }
 
 func (p *asyncProducer) returnErrors(batch []*ProducerMessage, err error) {
