@@ -8,6 +8,8 @@ import (
 
 	"github.com/eapache/go-resiliency/breaker"
 	"github.com/eapache/queue"
+	"github.com/pingcap/log"
+	"go.uber.org/zap"
 )
 
 // AsyncProducer publishes Kafka messages using a non-blocking API. It routes messages
@@ -549,7 +551,7 @@ func (pp *partitionProducer) dispatch() {
 			case <-pp.brokerProducer.abandoned:
 				// a message on the abandoned channel means that our current broker selection is out of date
 				Logger.Printf("producer/leader/%s/%d abandoning broker %d\n", pp.topic, pp.partition, pp.leader.ID())
-				fmt.Printf("producer/leader/%s/%d abandoning broker %d\n", pp.topic, pp.partition, pp.leader.ID())
+				log.Warn("producer/leader bandoning broker", zap.Any("tpoic", pp.topic), zap.Any("partition", pp.partition), zap.Any("leadid", pp.leader.ID()))
 				pp.parent.unrefBrokerProducer(pp.leader, pp.brokerProducer)
 				pp.brokerProducer = nil
 				time.Sleep(pp.parent.conf.Producer.Retry.Backoff)
@@ -1106,10 +1108,10 @@ func (p *asyncProducer) returnSuccesses(batch []*ProducerMessage) {
 
 func (p *asyncProducer) retryMessage(msg *ProducerMessage, err error) {
 	if msg.retries >= p.conf.Producer.Retry.Max {
-		fmt.Printf("err retries r:%d, m:%d\n", msg.retries, p.conf.Producer.Retry.Max)
+		log.Warn("err retries", zap.Any("retries", msg.retries), zap.Any("max", p.conf.Producer.Retry.Max))
 		p.returnError(msg, err)
 	} else {
-		fmt.Printf("retries++ t:%d, r:%d, msg: %#v\n", time.Now().Unix(), msg.retries, msg)
+		log.Warn("retries++", zap.Any("retries", msg.retries), zap.Any("msg", msg))
 		msg.retries++
 		p.retries <- msg
 	}
