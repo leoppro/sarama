@@ -1105,8 +1105,10 @@ func (p *asyncProducer) returnSuccesses(batch []*ProducerMessage) {
 
 func (p *asyncProducer) retryMessage(msg *ProducerMessage, err error) {
 	if msg.retries >= p.conf.Producer.Retry.Max {
+		fmt.Printf("err retries r:%d, m:%d", msg.retries, p.conf.Producer.Retry.Max)
 		p.returnError(msg, err)
 	} else {
+		fmt.Printf("retries++ t:%d, r:%d, msg: %#v", time.Now().Unix(), msg.retries, msg)
 		msg.retries++
 		p.retries <- msg
 	}
