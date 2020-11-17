@@ -549,6 +549,7 @@ func (pp *partitionProducer) dispatch() {
 			case <-pp.brokerProducer.abandoned:
 				// a message on the abandoned channel means that our current broker selection is out of date
 				Logger.Printf("producer/leader/%s/%d abandoning broker %d\n", pp.topic, pp.partition, pp.leader.ID())
+				fmt.Printf("producer/leader/%s/%d abandoning broker %d\n", pp.topic, pp.partition, pp.leader.ID())
 				pp.parent.unrefBrokerProducer(pp.leader, pp.brokerProducer)
 				pp.brokerProducer = nil
 				time.Sleep(pp.parent.conf.Producer.Retry.Backoff)
@@ -1105,10 +1106,10 @@ func (p *asyncProducer) returnSuccesses(batch []*ProducerMessage) {
 
 func (p *asyncProducer) retryMessage(msg *ProducerMessage, err error) {
 	if msg.retries >= p.conf.Producer.Retry.Max {
-		fmt.Printf("err retries r:%d, m:%d", msg.retries, p.conf.Producer.Retry.Max)
+		fmt.Printf("err retries r:%d, m:%d\n", msg.retries, p.conf.Producer.Retry.Max)
 		p.returnError(msg, err)
 	} else {
-		fmt.Printf("retries++ t:%d, r:%d, msg: %#v", time.Now().Unix(), msg.retries, msg)
+		fmt.Printf("retries++ t:%d, r:%d, msg: %#v\n", time.Now().Unix(), msg.retries, msg)
 		msg.retries++
 		p.retries <- msg
 	}
